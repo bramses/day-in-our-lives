@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #wrapper {
+        min-height: 100%;
+      }
+
+      #switch {
+        display: none;
+      }
+
+      #nextBtn {
+        font-family: "Work Sans", sans-serif;
+        width: 100px;
+        height: inherit;
+        margin: 0 auto;
+        display: block;
+      }
+
+      video {
+        object-fit: fill;
+      }
+      #madeBy {
+        float: right;
+        margin-right: 0.5%;
+        font-family: "Work Sans", sans-serif;
+      }
+      
+      #timecontrols {
+          margin-left: 2%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="wrapper">
+      <div id="player"></div>
+      <video id="switch">
+        <source src="assets/Channel-switch.mp4" type="video/mp4" />
+      </video>
+      <footer>
+        <span id="madeBy"
+          >built by <a href="https://twitter.com/_bramses">@_bramses</a><br />
+          <a href="https://twitter.com/intent/tweet?button_hashtag=DayInOurLives&ref_src=twsrc%5Etfw" class="twitter-hashtag-button" data-text=" A day in the life...of everyone!" data-url="https://www.dayinourlives.com " data-related="_bramses" data-show-count="false">Tweet #DayInOurLives</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+          </span
+        >
+        <div id="timecontrols">
+            <span><object data="assets/sun.svg" type="image/svg+xml"></object></span><input type="range" id="daySlider" name="dayPct" min="0" max="95" value="0" /><span><object data="assets/moon.svg" type="image/svg+xml"></object>
+              </span>
+            <button id="nextBtn"><strong>Next Life</strong></button>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement("script");
+      document.getElementById("nextBtn").addEventListener("click", playSwitch);
+
+      const switchAsset = document.getElementById("switch");
+      switchAsset.addEventListener("ended", nextVidLogic);
+    
+      const slider = document.getElementById("daySlider");
+
+      let youtubePlayer;
+
+      const videoIDs = [
+        {
+          id: "HObPSeLxmu0",
+          length: 950,
+        },
+        {
+            id: "sS6O7Yp5xmg",
+            length: 377
+        }
+      ];
+      let currIndex = 1;
+
+      var h = window.innerHeight * 0.98;
+      var w = window.innerWidth;
+
+      function playSwitch() {
+        player.stopVideo();
+
+        youtubePlayer = document.getElementById("player");
+        youtubePlayer.style.display = "none";
+
+        switchAsset.height = h;
+        switchAsset.width = w;
+        switchAsset.style.zIndex = 999;
+        switchAsset.style.display = "block";
+
+        switchAsset.play();
+      }
+
+      function nextVidLogic() {
+        switchAsset.style.display = "none";
+        youtubePlayer.style.display = "block";
+        player.loadVideoById({
+          videoId: videoIDs[currIndex].id,
+          startSeconds: videoIDs[currIndex].length * (slider.value / 100),
+        });
+        player.playVideo();
+        if (currIndex == videoIDs.length - 1) {
+          currIndex = 0;
+        } else {
+          currIndex++;
+        }
+      }
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player("player", {
+          height: h,
+          width: w,
+          //videoId: 'M7lc1UVf-VE',
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+          },
+        });
+      }
+
+      function onPlayerReady(event) {
+
+        event.target.loadVideoById({
+          videoId: videoIDs[0].id,
+          startSeconds: videoIDs[0].length * (slider.value / 100),
+        });
+        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          // setTimeout(stopVideo, 10000);
+          done = true;
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
+  </body>
+</html>
